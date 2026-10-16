@@ -1,0 +1,13 @@
+{
+  "name": "sonia-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend opcional de SonIA: guarda el client_secret de SoundCloud, busca canciones y crea playlists.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --max-old-space-size=64 server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

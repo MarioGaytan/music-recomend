@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SonIA · Recomendador musical con IA</title>
+  <meta name="description" content="Responde unas preguntas y una IA arma tu playlist ideal; escúchala en SoundCloud.">
+  <meta name="theme-color" content="#07060d">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2307060d'/%3E%3Crect x='6' y='14' width='3' height='12' rx='1.5' fill='%233df5ff'/%3E%3Crect x='11' y='8' width='3' height='18' rx='1.5' fill='%23b26bff'/%3E%3Crect x='16' y='11' width='3' height='15' rx='1.5' fill='%23ff5fa2'/%3E%3Crect x='21' y='5' width='3' height='21' rx='1.5' fill='%23ffc93d'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Fondo animado -->
+  <div class="bg" aria-hidden="true">
+    <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+    <div class="grain"></div>
+  </div>
+
+  <header class="topbar">
+    <button class="brand" data-go="home" aria-label="Ir al inicio">
+      <span class="brand-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span class="brand-name">Son<b>IA</b></span>
+    </button>
+    <div class="topbar-right">
+      <span id="scStatus" class="chip chip-status" title="Estado de la conexión con SoundCloud">
+        <span class="dot"></span><span class="txt">Conectando con SoundCloud…</span>
+      </span>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- ======================= INICIO ======================= -->
+    <section id="view-home" class="view is-active" aria-labelledby="homeTitle">
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Tópicos de IA · Práctica 9</p>
+          <h1 id="homeTitle">Tu playlist ideal,<br><span class="grad-text">creada por una IA</span></h1>
+          <p class="lead">Responde preguntas cerradas sobre tus gustos y tu ánimo. Un algoritmo de recomendación compara tus respuestas con cada canción del catálogo, arma una playlist a tu medida y la reproduce con SoundCloud.</p>
+          <div class="cta-row">
+            <button class="btn btn-primary btn-lg" data-start="full">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+              Test completo <small>16 preguntas</small>
+            </button>
+            <button class="btn btn-ghost btn-lg" data-start="emotion">
+              <span aria-hidden="true">💓</span> Modo emoción <small>3 preguntas</small>
+            </button>
+          </div>
+          <button id="resumeBtn" class="link-btn" hidden>↺ Retomar mi última playlist</button>
+          <ul class="hero-stats">
+            <li><b id="statSongs">63</b><span>canciones</span></li>
+            <li><b>11</b><span>géneros</span></li>
+            <li><b>16</b><span>preguntas</span></li>
+            <li><b>0 MB</b><span>de servidor</span></li>
+          </ul>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="vinyl-big">
+            <div class="vinyl-label"><span>Son<b>IA</b></span></div>
+          </div>
+          <div class="hero-eq">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="how">
+        <article class="how-card">
+          <span class="how-n">01</span>
+          <h3>Respondes</h3>
+          <p>Preguntas cerradas: géneros, ritmo, voz, emociones, situación, época, idioma y cómo te sientes ahora.</p>
+        </article>
+        <article class="how-card">
+          <span class="how-n">02</span>
+          <h3>La IA calcula</h3>
+          <p>Construye tu perfil, mide la similitud con cada canción y diversifica la playlist con MMR.</p>
+        </article>
+        <article class="how-card">
+          <span class="how-n">03</span>
+          <h3>Escuchas y enseñas</h3>
+          <p>Suena en SoundCloud. Con 👍 y 👎 la IA aprende de ti y mejora la siguiente playlist.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ======================= CUESTIONARIO ======================= -->
+    <section id="view-quiz" class="view" aria-live="polite">
+      <div class="quiz">
+        <div class="quiz-top">
+          <button class="icon-btn" id="quizBack" aria-label="Pregunta anterior">
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-fill" id="quizProgress"></div>
+          </div>
+          <span class="quiz-count" id="quizCount">1 / 16</span>
+        </div>
+
+        <div class="q-stage">
+          <div class="q-card" id="qCard">
+            <p class="q-kicker" id="qKicker">Pregunta 1</p>
+            <h2 class="q-title" id="qTitle"></h2>
+            <p class="q-hint" id="qHint"></p>
+            <div class="q-options" id="qOptions" role="group"></div>
+          </div>
+        </div>
+
+        <div class="quiz-bottom">
+          <p class="kbd-hint">Tip: usa las teclas <kbd>A</kbd>–<kbd>K</kbd> y <kbd>Enter</kbd></p>
+          <button class="btn btn-primary" id="quizNext" disabled>Siguiente
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= PENSANDO ======================= -->
+    <section id="view-thinking" class="view">
+      <div class="thinking">
+        <div class="brain" aria-hidden="true">
+          <svg viewBox="0 0 200 200" id="netSvg"></svg>
+        </div>
+        <h2>La IA está armando tu playlist</h2>
+        <ol class="steps" id="thinkSteps">
+          <li>Construyendo tu perfil musical</li>
+          <li>Comparando con <span class="n-songs">63</span> canciones</li>
+          <li>Diversificando con MMR</li>
+          <li>Ordenando el arco de energía</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ======================= RESULTADOS ======================= -->
+    <section id="view-results" class="view">
+      <!-- Escenario: visualizador + ahora suena -->
+      <div class="stage" id="stage">
+        <div class="stage-viz">
+          <canvas id="vizCanvas" aria-label="Visualizador de audio estéreo"></canvas>
+        </div>
+        <div class="stage-now">
+          <div class="vinyl" id="vinyl">
+            <div class="vinyl-art" id="vinylArt"></div>
+            <div class="vinyl-hole"></div>
+          </div>
+          <div class="now-meta">
+            <p class="eyebrow" id="nowEyebrow">Listo para sonar</p>
+            <h2 id="nowTitle">Tu playlist</h2>
+            <p id="nowArtist" class="muted">Pulsa reproducir</p>
+            <div class="now-chips" id="nowChips"></div>
+            <div class="stage-actions">
+              <button class="btn btn-primary" id="playAllBtn">
+                <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+                <span>Reproducir</span>
+              </button>
+              <button class="btn btn-ghost btn-sm" id="realAudioBtn" title="Comparte el audio de esta pestaña para que las barras lean el espectro real">
+                🎚️ <span>Barras con audio real</span>
+              </button>
+              <a class="btn btn-ghost btn-sm" id="openScBtn" href="https://soundcloud.com" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" aria-hidden="true" class="sc-ico"><path d="M2 14.5a2 2 0 0 0 0 .5v1.5a1 1 0 0 0 2 0V15a1 1 0 0 0-2-.5zm3-2v5a1 1 0 0 0 2 0v-5a1 1 0 0 0-2 0zm3-1.5v6.5a1 1 0 0 0 2 0V11a1 1 0 0 0-2 0zm3-2.5v9a1 1 0 0 0 2 0v-9a1 1 0 0 0-2 0zm3.5-1.5a5.5 5.5 0 0 1 5.4 4.4A3.5 3.5 0 0 1 19.5 18H15a1 1 0 0 1-1-1V7.7a1 1 0 0 1 .5-.7z"/></svg>
+                <span>Abrir en SoundCloud</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-grid">
+        <!-- Perfil de la IA -->
+        <aside class="panel profile" id="profilePanel">
+          <h3 class="panel-title">Lo que la IA entendió de ti</h3>
+          <div class="radar-wrap"><svg id="radar" viewBox="0 0 300 300" role="img" aria-label="Gráfica de radar de tu perfil musical"></svg></div>
+          <div id="profileChips" class="chip-cloud"></div>
+          <p id="profileSummary" class="profile-summary"></p>
+          <div class="algo">
+            <h4>¿Cómo decidió?</h4>
+            <ul>
+              <li><b>Perfil:</b> cada respuesta fija un objetivo con peso (energía, género, emoción…).</li>
+              <li><b>Similitud:</b> calcula qué tanto se parece cada canción a ese perfil.</li>
+              <li><b>MMR:</b> equilibra relevancia y variedad <span id="lambdaTxt"></span>.</li>
+              <li><b>Rocchio:</b> tus 👍/👎 mueven el perfil y la IA aprende.</li>
+            </ul>
+          </div>
+        </aside>
+
+        <!-- Playlist -->
+        <section class="panel playlist-panel">
+          <div class="pl-head">
+            <div>
+              <h3 class="panel-title" id="plTitle">Tu playlist</h3>
+              <p class="muted" id="plMeta">—</p>
+            </div>
+            <div class="pl-actions">
+              <button class="btn btn-ghost btn-sm" id="regenBtn" title="Vuelve a calcular la playlist usando tus 👍 y 👎">
+                🧠 <span>Aprender y regenerar</span>
+              </button>
+              <div class="menu-wrap">
+                <button class="btn btn-ghost btn-sm" id="exportBtn" aria-haspopup="true" aria-expanded="false">⤴ Enviar a SoundCloud</button>
+                <div class="menu" id="exportMenu" role="menu" hidden>
+                  <button role="menuitem" id="saveScBtn">☁️ Guardar como playlist en mi SoundCloud</button>
+                  <button role="menuitem" id="copyBtn">📋 Copiar enlaces de SoundCloud</button>
+                  <button role="menuitem" id="downloadBtn">💾 Descargar playlist (.txt)</button>
+                  <button role="menuitem" id="openAllBtn">🔗 Abrir la primera en SoundCloud</button>
+                </div>
+              </div>
+              <button class="btn btn-ghost btn-sm" data-go="home">↺ Nuevo test</button>
+            </div>
+          </div>
+          <p class="learn-hint" id="learnHint">Marca 👍 o 👎 en las canciones y pulsa <b>Aprender y regenerar</b>.</p>
+          <ol class="tracks" id="tracks"></ol>
+
+          <div class="discover" id="discoverBox" hidden>
+            <div class="pl-head">
+              <div>
+                <h3 class="panel-title">Descubrimientos en vivo de SoundCloud</h3>
+                <p class="muted">Búsqueda en el API de SoundCloud a partir de tu género favorito</p>
+              </div>
+              <button class="btn btn-ghost btn-sm" id="discoverBtn">🔭 Buscar más</button>
+            </div>
+            <ol class="tracks" id="discoverList"></ol>
+          </div>
+        </section>
+      </div>
+
+      <details class="sc-dock" id="scDock">
+        <summary>Reproductor oficial de SoundCloud</summary>
+        <iframe id="scFrame" title="Reproductor de SoundCloud" allow="autoplay; encrypted-media" scrolling="no" frameborder="no"></iframe>
+      </details>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Proyecto en equipo · <b>Mario Gaytán</b> · <b>Rosario Rosas</b> · <b>Jorge Robles</b></p>
+    <p class="muted">Música vía SoundCloud. Los derechos de cada pista son de sus autores.</p>
+  </footer>
+
+  <!-- Barra de reproducción -->
+  <div class="playerbar" id="playerBar" hidden>
+    <div class="pb-progress" id="pbProgress"><div class="pb-fill" id="pbFill"></div><div class="pb-knob" id="pbKnob"></div></div>
+    <div class="pb-inner">
+      <div class="pb-track">
+        <div class="pb-cover" id="pbCover"></div>
+        <div class="pb-text">
+          <b id="pbTitle">—</b>
+          <span id="pbArtist">—</span>
+        </div>
+      </div>
+      <div class="pb-controls">
+        <button class="icon-btn" id="pbPrev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zM20 6v12l-9-6z"/></svg></button>
+        <button class="icon-btn play" id="pbPlay" aria-label="Reproducir">
+          <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="i-pause" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+        </button>
+        <button class="icon-btn" id="pbNext" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM4 6l9 6-9 6z"/></svg></button>
+      </div>
+      <div class="pb-right">
+        <span class="pb-time" id="pbTime">0:00 / 0:00</span>
+        <div class="mini-eq" id="miniEq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <label class="vol" title="Volumen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg>
+          <input type="range" id="pbVol" min="0" max="100" value="80" aria-label="Volumen">
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/catalog.js"></script>
+  <script src="js/questions.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/visualizer.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
