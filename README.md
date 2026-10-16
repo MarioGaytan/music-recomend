@@ -4,9 +4,9 @@ Práctica 9 (Periodo 2, Práctica 3) · Tópicos de IA
 
 Proyecto en equipo: **Mario Gaytán**, **Rosario Rosas** y **Jorge Robles**.
 
-SonIA es una página web en la que respondes preguntas cerradas sobre tus gustos y tu estado de ánimo. Con esas respuestas, nuestro algoritmo de IA arma una playlist a tu medida, la reproduce con **SoundCloud** y mueve un visualizador de barras estéreo al ritmo de la música. Si marcas 👍 o 👎, la IA aprende de ti y recalcula la playlist.
+SonIA es una página web en la que respondes preguntas cerradas sobre tus gustos y tu estado de ánimo. Con esas respuestas, nuestro algoritmo de IA arma una playlist a tu medida, la reproduce **completa** desde los videos oficiales de **YouTube** (con SoundCloud de respaldo) y mueve un visualizador de barras estéreo al ritmo de la música. Mientras contestas suena una música de fondo **original que la app genera sola**. Si marcas «me gusta» o «no me gusta», la IA aprende de ti y recalcula la playlist.
 
-**▶ Demo en línea:** `https://mariogaytan.github.io/Practica9_Topicos_IA/` (si el repositorio se llama así; ver [Publicar en GitHub Pages](#publicar-en-github-pages)).
+**Demo en línea:** `https://mariogaytan.github.io/Practica9_Topicos_IA/` (si el repositorio se llama así; ver [Publicar en GitHub Pages](#publicar-en-github-pages)).
 
 ---
 
@@ -17,11 +17,13 @@ SonIA es una página web en la que respondes preguntas cerradas sobre tus gustos
 | **Cuestionario** | Las 15 preguntas cerradas que definimos, más una 16.ª: *¿Cómo te sientes en este momento?* |
 | **Modo emoción** | Un camino rápido de 3 preguntas: cómo te sientes, si quieres que la música te **acompañe** o te **cambie** el ánimo, y cuánto debe durar. |
 | **Motor de IA** | Filtrado basado en contenido + MMR + aprendizaje con Rocchio (detalle abajo). |
-| **Catálogo** | 63 canciones de los 11 géneros del cuestionario. Revisamos cada enlace de SoundCloud y la mayoría son subidas oficiales del artista o de su disquera. |
-| **Reproductor** | Widget API oficial de SoundCloud: reproducir, pausar, siguiente, barra de progreso, volumen y portada real. |
-| **Visualizador** | Barras estéreo estilo LED (canal L ← centro → canal R) con picos que caen despacio y reflejo. |
-| **Enviar a SoundCloud** | Copiar los enlaces, descargar la playlist en `.txt`, abrir en SoundCloud o, con el backend opcional, **guardarla como playlist en tu cuenta**. |
-| **UI/UX** | Tema oscuro con efecto de vidrio, fondo animado, transiciones entre preguntas, vinilo que gira, radar de tu perfil, anillos de coincidencia, atajos de teclado y diseño para celular. |
+| **Catálogo** | 63 canciones de los 11 géneros del cuestionario. Cada una tiene su **video oficial de YouTube** (canal del artista, disquera, VEVO o «- Topic») y su enlace de SoundCloud. Revisamos los 63 de cada fuente. |
+| **Reproductor** | YouTube IFrame Player API (canción completa, video visible), con **SoundCloud** de respaldo y **Audius** para descubrimientos. Tiene un botón para elegir la fuente. |
+| **Música de fondo** | Lo-fi **original** sintetizado en tiempo real con Web Audio: acordes, bajo, batería, melodía y ruido de vinilo. Cambia de tempo y de modo (mayor/menor) según lo que respondes, y cada opción suena con una nota. |
+| **Visualizador** | Barras estéreo estilo LED (canal L ← centro → canal R) con picos que caen despacio y reflejo. Con Audius lee el **espectro real** de la canción. |
+| **Descubrir artistas** | Lo más escuchado del mes en Audius según tu género y tu ánimo. Sólo música original: quitamos remixes, covers y edits. |
+| **Exportar** | Abrir la playlist como lista de YouTube, copiar los enlaces, descargar un `.txt` o, con el backend opcional, **guardarla en tu cuenta de SoundCloud**. |
+| **UI/UX** | Tema oscuro con efecto de vidrio, fondo animado, íconos SVG (no emojis, para que se vean igual en todos los navegadores), transiciones entre preguntas, vinilo que gira, radar de tu perfil, anillos de coincidencia, atajos de teclado y diseño para celular. |
 
 ## Cómo funciona la IA
 
@@ -86,29 +88,48 @@ Al final ordenamos la playlist como un **arco de energía**: empieza suave, sube
 Al pulsar **Aprender y regenerar**:
 
 ```
-objetivo' = objetivo + β·(promedio 👍 − objetivo) − γ·(promedio 👎 − objetivo)     β = 0.45, γ = 0.2
+objetivo' = objetivo + β·(promedio «me gusta» − objetivo) − γ·(promedio «no me gusta» − objetivo)     β = 0.45, γ = 0.2
 ```
 
-También sube el peso de los géneros y emociones de lo que te gustó y baja el de lo que no. Las canciones con 👍 se quedan, las de 👎 salen y el resto se recalcula.
+También sube el peso de los géneros y emociones de lo que te gustó y baja el de lo que no. Las canciones con «me gusta» se quedan, las de «no me gusta» salen y el resto se recalcula.
 
-## SoundCloud: qué usamos y por qué
+## Fuentes de música: qué investigamos y qué elegimos
+
+Buscamos opciones **gratuitas** que **respetaran los derechos de autor**, o sea, que reprodujeran la música con el reproductor oficial de cada plataforma, sin descargar ni copiar el audio:
+
+| Opción | ¿Gratis? | ¿Canción completa? | ¿Sirve en GitHub Pages? | Decisión |
+|---|---|---|---|---|
+| **YouTube IFrame Player API** | Sí, sin llave | **Sí** | Sí | **Principal.** Usamos los videos oficiales y el reproductor de YouTube visible (≥ 200 px, como piden sus términos). |
+| SoundCloud Widget API | Sí, sin llave | A veces: en canciones de disquera da una **vista previa de ~30 s** a quien no tiene Go+ | Sí | **Respaldo.** Si detectamos la vista previa, cambiamos solos a YouTube. |
+| **Audius API** | Sí, sin llave | **Sí** | Sí (tiene CORS) | **Descubrimientos.** Los artistas suben su propia música; la reproducimos dando crédito y enlace. |
+| Spotify Web Playback SDK | No | Sólo con **Premium** | No | Descartado. Su embed da 30 s si no inicias sesión. |
+| YouTube Music | — | — | — | No tiene API pública. Usamos el reproductor de YouTube. |
+| Deezer API | Sí | Sólo 30 s | No (sin CORS) | Descartado. |
+| Apple Music / iTunes | Sí | Sólo 30 s | Sí | Descartado. |
+| Jamendo | Sí, con `client_id` | Sí (Creative Commons) | Sí | No lo usamos: casi no tiene artistas conocidos. |
+
+**Música de fondo.** Para el cuestionario no usamos ninguna canción ajena: `js/bgmusic.js` **compone** un loop lo-fi en el navegador con osciladores y ruido. Por eso no hay nada que licenciar y no se descarga ningún archivo. Suena después del primer clic (los navegadores no dejan reproducir audio antes), se apaga sola cuando suena tu playlist y se puede silenciar con el botón de arriba.
+
+### SoundCloud y su API
 
 Revisamos la [guía del API de SoundCloud](https://developers.soundcloud.com/docs/api/guide):
 
 - El **API oficial** pide `client_id` **y** `client_secret` para obtener cualquier token, también para buscar. La guía trata a todos los clientes como confidenciales, así que ese secreto **no puede ir dentro de una página pública** de GitHub Pages.
 - El **Widget API** (`w.soundcloud.com/player/api.js`) **no necesita llaves** y permite reproducir, pausar, adelantar, cambiar el volumen y recibir eventos.
-- El **oEmbed** público (`soundcloud.com/oembed`) tampoco necesita llaves. Lo usamos para traer la portada de cada canción y para validar que todos los enlaces del catálogo existen.
+- El **oEmbed** público (`soundcloud.com/oembed`) tampoco necesita llaves. Con él validamos que todos los enlaces del catálogo existen.
+- La vista previa de ~30 s viene de la política de algunas disqueras en SoundCloud: el widget reporta `policy: "SNIP"` o una `duration` menor que `full_duration`. La app lo detecta y pasa a YouTube.
 
 Por eso armamos el proyecto en dos capas:
 
-1. **GitHub Pages (0 MB de RAM, lo principal):** catálogo + motor de IA + Widget + oEmbed. Funciona solo, sin servidor.
-2. **Backend opcional en Railway (`/api`):** sólo si quieres **buscar canciones en vivo** en el API de SoundCloud y **guardar la playlist en tu cuenta** con OAuth 2.1 + PKCE.
+1. **GitHub Pages (0 MB de RAM, lo principal):** catálogo + motor de IA + YouTube + SoundCloud Widget + Audius + música de fondo. Funciona solo, sin servidor.
+2. **Backend opcional en Railway (`/api`):** sólo para **guardar la playlist en tu cuenta de SoundCloud** con OAuth 2.1 + PKCE.
 
-### ¿Por qué las barras no leen el audio directamente?
+### ¿Por qué las barras no siempre leen el audio directamente?
 
-El audio de SoundCloud suena dentro de un `iframe` de otro dominio, y el navegador no deja leer sus frecuencias. Resolvimos esto de dos formas:
+El audio de YouTube y de SoundCloud suena dentro de un `iframe` de otro dominio, y el navegador no deja leer sus frecuencias. Resolvimos esto de tres formas:
 
 - **Modo sincronizado (por defecto):** las barras se generan con la **posición real** de la canción, su **BPM** y su **energía**: bombo en cada tiempo, caja en el 2 y el 4, y hi-hats en los contratiempos. Así se mueven al ritmo de la canción.
+- **Audius:** como es audio directo con CORS, conectamos el `<audio>` a un `AnalyserNode` y las barras muestran el **espectro real** de cada canal.
 - **Modo audio real (botón «Barras con audio real»):** compartes el audio de la pestaña (`getDisplayMedia`) y un `AnalyserNode` de Web Audio lee el **espectro real de cada canal (L y R)** con una escala logarítmica, como un ecualizador de verdad. Funciona en Chrome y Edge.
 
 ## Cómo correrlo en local
@@ -121,7 +142,7 @@ python -m http.server 5500
 
 Luego abre `http://localhost:5500`. Si se abre con doble clic (`file://`) también funciona, pero algunos navegadores limitan el widget de SoundCloud.
 
-> Si tu red bloquea `soundcloud.com`, la página entra en **modo demo**: todo funciona (cuestionario, IA, visualizador), pero sin audio. El indicador de la esquina superior lo avisa.
+> Si tu red bloquea YouTube y SoundCloud, la página entra en **modo demo**: todo funciona (cuestionario, IA, visualizador), pero sin audio. El indicador de la esquina superior lo avisa.
 
 ## Publicar en GitHub Pages
 
@@ -134,7 +155,7 @@ El archivo `.nojekyll` evita que GitHub procese los archivos. Cada `git push` ac
 
 ## Backend opcional (Railway, mínima RAM)
 
-Sólo hace falta para **guardar la playlist en tu cuenta de SoundCloud** y para la sección **Descubrimientos en vivo**. Está en `api/server.js`: es Node puro, **sin dependencias**, con las sesiones en memoria y el heap limitado a 64 MB (`--max-old-space-size=64`). Usa alrededor de 40 MB de RAM.
+Sólo hace falta para **guardar la playlist en tu cuenta de SoundCloud**; la búsqueda en el API (`/api/search`) también queda disponible. Está en `api/server.js`: es Node puro, **sin dependencias**, con las sesiones en memoria y el heap limitado a 64 MB (`--max-old-space-size=64`). Usa alrededor de 40 MB de RAM.
 
 | Ruta | Qué hace |
 |---|---|
@@ -163,13 +184,15 @@ practica9_recomendador_musical/
 ├── index.html          # Vistas: inicio, cuestionario, "IA pensando", resultados
 ├── css/styles.css      # Diseño, animaciones y diseño para celular
 ├── js/
+│   ├── icons.js        # Sprite de íconos SVG (Lucide, ISC)
 │   ├── config.js       # API_BASE del backend opcional
-│   ├── catalog.js      # 63 canciones con sus rasgos y enlaces de SoundCloud
+│   ├── catalog.js      # 63 canciones: rasgos + video de YouTube + enlace de SoundCloud
 │   ├── questions.js    # 16 preguntas cerradas + flujo del modo emoción
 │   ├── engine.js       # Perfil, similitud, MMR, arco de energía, Rocchio
-│   ├── player.js       # Widget API de SoundCloud (y modo demo)
-│   ├── visualizer.js   # Barras estéreo sincronizadas / audio real
-│   ├── api.js          # Cliente del backend opcional
+│   ├── bgmusic.js      # Música de fondo original sintetizada (Web Audio)
+│   ├── player.js       # YouTube + SoundCloud + audio HTML5 (Audius) y modo demo
+│   ├── visualizer.js   # Barras estéreo sincronizadas / espectro real
+│   ├── api.js          # Cliente de Audius y del backend opcional
 │   └── app.js          # Lógica de la interfaz
 ├── api/
 │   ├── server.js       # Backend opcional (Node sin dependencias)
@@ -179,20 +202,24 @@ practica9_recomendador_musical/
 
 ## Cómo lo probamos
 
-- Corrimos el motor en Node con varios perfiles de prueba: fiesta de reguetón, estudio instrumental, rock de un solo género, «sorpréndeme» de más de 2 horas, y triste con *acompañar* y con *cambiar*. También probamos el aprendizaje con 👍/👎.
-- Validamos los **63 enlaces** con el oEmbed de SoundCloud desde el navegador: todos responden.
-- Reprodujimos canciones reales con el widget: suenan, traen su portada y el visualizador reacciona.
+- Corrimos el motor en Node con varios perfiles de prueba: fiesta de reguetón, estudio instrumental, rock de un solo género, «sorpréndeme» de más de 2 horas, y triste con *acompañar* y con *cambiar*. También probamos el aprendizaje con «me gusta / no me gusta».
+- Validamos los **63 videos** con el oEmbed de YouTube (todos permiten insertarse) y los **63 enlaces** con el oEmbed de SoundCloud: todos responden.
+- Reprodujimos canciones completas con YouTube (por ejemplo, 4:26 de 4:26), probamos SoundCloud como fuente y reprodujimos descubrimientos de Audius con el visualizador leyendo el espectro real.
+- Comprobamos que la música de fondo empieza con el primer clic, cambia con las respuestas y se apaga al reproducir la playlist.
 - Revisamos el diseño en escritorio y en celular (375 px), sin desbordes horizontales.
 - Del backend probamos `health`, validación de `return`, el redirect a OAuth con PKCE, el CORS y el rechazo de sesiones inválidas. **No** pudimos probar la búsqueda ni el guardado contra SoundCloud real, porque requieren una app registrada con su `client_secret`.
 
 ## Limitaciones
 
 - Los rasgos de cada canción (energía, valencia, etc.) los asignamos nosotros a mano. SoundCloud no publica métricas de audio como las de otros servicios.
-- Alguna canción puede no estar disponible en ciertos países o desaparecer de SoundCloud. Si pasa, la app lo avisa y salta a la siguiente.
+- Un video puede bloquearse en algún país o el canal puede quitarlo. Si pasa, la app intenta con SoundCloud y, si tampoco se puede, avisa y salta a la siguiente.
+- En SoundCloud, algunas canciones de disquera sólo dan 30 s sin Go+. Por eso YouTube es la fuente principal.
+- En Audius, los artistas son responsables de lo que suben. Filtramos remixes, covers y edits, pero el filtro se basa en los metadatos y en el título.
 - Algunos navegadores bloquean la reproducción automática. En ese caso basta con pulsar ▶ una vez.
 
 ## Créditos
 
-- Música: cada canción pertenece a sus autores y se reproduce con el reproductor oficial de SoundCloud.
-- Tipografías: Outfit y Space Grotesk (Google Fonts).
+- Música: cada canción pertenece a sus autores y se reproduce con los reproductores oficiales de YouTube, SoundCloud y Audius, con enlace al original.
+- Música de fondo: compuesta y sintetizada por la propia app.
+- Íconos: [Lucide](https://lucide.dev) (licencia ISC). Tipografías: Outfit y Space Grotesk (Google Fonts).
 - Desarrollo: **Mario Gaytán, Rosario Rosas y Jorge Robles**.

@@ -72,9 +72,10 @@
   function frame(ts) {
     const t = ts / 1000;
     const st = viz.getState ? viz.getState() : { playing: false };
-    if (viz.real) {
-      fromAnalyser(target.L, viz.real.analyserL, viz.real.bufL);
-      fromAnalyser(target.R, viz.real.analyserR, viz.real.bufR);
+    const live = viz.real || (st.engine === 'audio' && viz.media);
+    if (live) {
+      fromAnalyser(target.L, live.analyserL, live.bufL);
+      fromAnalyser(target.R, live.analyserR, live.bufR);
     } else if (st.playing) {
       simulate(target.L, st, t, 0.0);
       simulate(target.R, st, t + 0.11, 1.7);
@@ -190,6 +191,24 @@
     return true;
   }
 
+  // Audio directo (Audius): se conecta una sola vez el <audio> a dos analizadores L/R.
+  function useMediaElement(el) {
+    if (viz.media || !el) return;
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    const src = ac.createMediaElementSource(el);
+    const split = ac.createChannelSplitter(2);
+    const mk = () => { const a = ac.createAnalyser(); a.fftSize = 2048; a.smoothingTimeConstant = 0.6; return a; };
+    const analyserL = mk(), analyserR = mk();
+    src.connect(split); split.connect(analyserL, 0); split.connect(analyserR, 1);
+    src.connect(ac.destination);
+    viz.media = {
+      ac, analyserL, analyserR,
+      bufL: new Uint8Array(analyserL.frequencyBinCount),
+      bufR: new Uint8Array(analyserR.frequencyBinCount),
+    };
+  }
+  function resumeMedia() { if (viz.media && viz.media.ac.state === 'suspended') viz.media.ac.resume(); }
+
   function disableRealAudio() {
     if (!viz.real) return;
     viz.real.stream.getTracks().forEach(t => t.stop());
@@ -202,7 +221,7 @@
 
   window.SR = window.SR || {};
   window.SR.viz = {
-    attach, setColors, enableRealAudio, disableRealAudio, subscribe,
+    attach, setColors, enableRealAudio, disableRealAudio, subscribe, useMediaElement, resumeMedia,
     get isReal() { return !!viz.real; },
     get level() { return viz.level; },
     bars: viz,

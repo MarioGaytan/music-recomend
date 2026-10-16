@@ -58,6 +58,56 @@
     store,
   };
 
+  /* -------------------------------------------------------------------
+     Audius: API abierta y gratuita, sin llave, con CORS. Los artistas
+     suben su propia música, así que el streaming completo es legal.
+     https://docs.audius.org/api  · Se pide app_name para identificarnos.
+     ------------------------------------------------------------------- */
+  const AUDIUS_GENRE = {
+    pop: 'Pop', rock: 'Rock', urbano: 'Latin', hiphop: 'Hip-Hop/Rap', electronica: 'Electronic',
+    regional: 'Latin', rnb: 'R&B/Soul', indie: 'Alternative', jazz: 'Jazz', clasica: 'Classical', otros: 'World',
+  };
+  let audiusHost = null;
+  const audius = {
+    async host() {
+      if (audiusHost) return audiusHost;
+      const r = await fetch('https://api.audius.co');
+      const j = await r.json();
+      audiusHost = (j.data && j.data[0]) || 'https://api.audius.co';
+      return audiusHost;
+    },
+    // Toma lo más escuchado del mes en ese género y deja SÓLO música original:
+    // fuera remixes, covers, edits y bootlegs de canciones de otros artistas.
+    async search(genreKey, moods = [], limit = 8) {
+      const h = await audius.host();
+      const genre = AUDIUS_GENRE[genreKey] || '';
+      const q = new URLSearchParams({ time: 'month', app_name: 'SonIA' });
+      if (genre) q.set('genre', genre);
+      const r = await fetch(`${h}/v1/tracks/trending?${q.toString()}`);
+      if (!r.ok) throw new Error('Audius HTTP ' + r.status);
+      const j = await r.json();
+      const notOriginal = /\b(edit|remix|rmx|bootleg|mashup|flip|cover|rework|vip|sped|slowed|nightcore|type beat|repost)\b/i;
+      const originals = (j.data || []).filter(t =>
+        t.is_streamable !== false && !t.is_stream_gated && t.duration > 90 && t.duration < 600 &&
+        !(t.remix_of && t.remix_of.tracks && t.remix_of.tracks.length) &&
+        !t.cover_original_song_title && !notOriginal.test(t.title));
+      // Primero las que coinciden con el ánimo buscado; después el resto.
+      const wanted = new Set(moods);
+      originals.sort((a, b) => (wanted.has(b.mood) ? 1 : 0) - (wanted.has(a.mood) ? 1 : 0));
+      return originals
+        .slice(0, limit)
+        .map(t => ({
+          id: t.id, title: t.title, user: t.user && t.user.name,
+          duration: t.duration, bpm: t.bpm ? Math.round(t.bpm) : null, plays: t.play_count,
+          artwork: t.artwork && (t.artwork['480x480'] || t.artwork['150x150']),
+          stream: (t.stream && t.stream.url) || `${h}/v1/tracks/${t.id}/stream?app_name=SonIA`,
+          url: 'https://audius.co' + (t.permalink || ''),
+          mood: t.mood, genre: t.genre,
+        }));
+    },
+  };
+
   window.SR = window.SR || {};
   window.SR.api = api;
+  window.SR.audius = audius;
 })();

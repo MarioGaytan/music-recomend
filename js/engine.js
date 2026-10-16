@@ -6,7 +6,7 @@
    2. Puntuación: similitud ponderada canción ↔ perfil (0..1).
    3. Selección: MMR (Maximal Marginal Relevance) + ruido de Gumbel
       para equilibrar relevancia, diversidad y sorpresa.
-   4. Aprendizaje: retroalimentación 👍/👎 con el algoritmo de Rocchio.
+   4. Aprendizaje: retroalimentación (me gusta / no me gusta) con el algoritmo de Rocchio.
    El modelo de ánimo usa el modelo circumplejo de Russell (valencia × energía).
    ========================================================================= */
 (function () {

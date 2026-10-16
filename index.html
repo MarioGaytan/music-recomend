@@ -25,8 +25,12 @@
       <span class="brand-name">Son<b>IA</b></span>
     </button>
     <div class="topbar-right">
-      <span id="scStatus" class="chip chip-status" title="Estado de la conexión con SoundCloud">
-        <span class="dot"></span><span class="txt">Conectando con SoundCloud…</span>
+      <button class="chip chip-btn" id="bgToggle" aria-pressed="false" title="Música de fondo original, generada por la app (sin derechos de autor)">
+        <span class="bg-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        <i data-icon="volume-x" class="bg-off"></i><span class="txt">Música de fondo</span>
+      </button>
+      <span id="scStatus" class="chip chip-status" title="Estado de los reproductores">
+        <span class="dot"></span><span class="txt">Conectando…</span>
       </span>
     </div>
   </header>
@@ -38,17 +42,17 @@
         <div class="hero-copy">
           <p class="eyebrow">Tópicos de IA · Práctica 9</p>
           <h1 id="homeTitle">Tu playlist ideal,<br><span class="grad-text">creada por una IA</span></h1>
-          <p class="lead">Responde preguntas cerradas sobre tus gustos y tu ánimo. Un algoritmo de recomendación compara tus respuestas con cada canción del catálogo, arma una playlist a tu medida y la reproduce con SoundCloud.</p>
+          <p class="lead">Responde preguntas cerradas sobre tus gustos y tu ánimo. Un algoritmo de recomendación compara tus respuestas con cada canción del catálogo, arma una playlist a tu medida y la reproduce completa desde los videos oficiales de YouTube.</p>
           <div class="cta-row">
             <button class="btn btn-primary btn-lg" data-start="full">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
               Test completo <small>16 preguntas</small>
             </button>
             <button class="btn btn-ghost btn-lg" data-start="emotion">
-              <span aria-hidden="true">💓</span> Modo emoción <small>3 preguntas</small>
+              <i data-icon="heart-pulse"></i> Modo emoción <small>3 preguntas</small>
             </button>
           </div>
-          <button id="resumeBtn" class="link-btn" hidden>↺ Retomar mi última playlist</button>
+          <button id="resumeBtn" class="link-btn" hidden><i data-icon="rotate-ccw"></i> Retomar mi última playlist</button>
           <ul class="hero-stats">
             <li><b id="statSongs">63</b><span>canciones</span></li>
             <li><b>11</b><span>géneros</span></li>
@@ -80,7 +84,7 @@
         <article class="how-card">
           <span class="how-n">03</span>
           <h3>Escuchas y enseñas</h3>
-          <p>Suena en SoundCloud. Con 👍 y 👎 la IA aprende de ti y mejora la siguiente playlist.</p>
+          <p>Suena completa en YouTube. Con <i data-icon="thumbs-up"></i> y <i data-icon="thumbs-down"></i> la IA aprende de ti y mejora la siguiente playlist.</p>
         </article>
       </div>
     </section>
@@ -140,9 +144,12 @@
           <canvas id="vizCanvas" aria-label="Visualizador de audio estéreo"></canvas>
         </div>
         <div class="stage-now">
-          <div class="vinyl" id="vinyl">
-            <div class="vinyl-art" id="vinylArt"></div>
-            <div class="vinyl-hole"></div>
+          <div class="media-box">
+            <div class="video-wrap" id="videoWrap" hidden><div id="ytPlayer"></div></div>
+            <div class="vinyl" id="vinyl">
+              <div class="vinyl-art" id="vinylArt"></div>
+              <div class="vinyl-hole"></div>
+            </div>
           </div>
           <div class="now-meta">
             <p class="eyebrow" id="nowEyebrow">Listo para sonar</p>
@@ -156,12 +163,16 @@
                 <span>Reproducir</span>
               </button>
               <button class="btn btn-ghost btn-sm" id="realAudioBtn" title="Comparte el audio de esta pestaña para que las barras lean el espectro real">
-                🎚️ <span>Barras con audio real</span>
+                <i data-icon="sliders-vertical"></i> <span>Barras con audio real</span>
               </button>
               <a class="btn btn-ghost btn-sm" id="openScBtn" href="https://soundcloud.com" target="_blank" rel="noopener">
-                <svg viewBox="0 0 24 24" aria-hidden="true" class="sc-ico"><path d="M2 14.5a2 2 0 0 0 0 .5v1.5a1 1 0 0 0 2 0V15a1 1 0 0 0-2-.5zm3-2v5a1 1 0 0 0 2 0v-5a1 1 0 0 0-2 0zm3-1.5v6.5a1 1 0 0 0 2 0V11a1 1 0 0 0-2 0zm3-2.5v9a1 1 0 0 0 2 0v-9a1 1 0 0 0-2 0zm3.5-1.5a5.5 5.5 0 0 1 5.4 4.4A3.5 3.5 0 0 1 19.5 18H15a1 1 0 0 1-1-1V7.7a1 1 0 0 1 .5-.7z"/></svg>
-                <span>Abrir en SoundCloud</span>
+                <span id="openSrcIco"><i data-icon="external-link"></i></span>
+                <span id="openSrcTxt">Abrir original</span>
               </a>
+              <div class="seg" role="group" aria-label="Fuente de audio">
+                <button data-src="yt" aria-pressed="true"><i data-icon="youtube"></i> YouTube</button>
+                <button data-src="sc" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" class="sc-ico"><path d="M2 14.5a2 2 0 0 0 0 .5v1.5a1 1 0 0 0 2 0V15a1 1 0 0 0-2-.5zm3-2v5a1 1 0 0 0 2 0v-5a1 1 0 0 0-2 0zm3-1.5v6.5a1 1 0 0 0 2 0V11a1 1 0 0 0-2 0zm3-2.5v9a1 1 0 0 0 2 0v-9a1 1 0 0 0-2 0zm3.5-1.5a5.5 5.5 0 0 1 5.4 4.4A3.5 3.5 0 0 1 19.5 18H15a1 1 0 0 1-1-1V7.7a1 1 0 0 1 .5-.7z"/></svg> SoundCloud</button>
+              </div>
             </div>
           </div>
         </div>
@@ -180,7 +191,7 @@
               <li><b>Perfil:</b> cada respuesta fija un objetivo con peso (energía, género, emoción…).</li>
               <li><b>Similitud:</b> calcula qué tanto se parece cada canción a ese perfil.</li>
               <li><b>MMR:</b> equilibra relevancia y variedad <span id="lambdaTxt"></span>.</li>
-              <li><b>Rocchio:</b> tus 👍/👎 mueven el perfil y la IA aprende.</li>
+              <li><b>Rocchio:</b> tus <i data-icon="thumbs-up"></i>/<i data-icon="thumbs-down"></i> mueven el perfil y la IA aprende.</li>
             </ul>
           </div>
         </aside>
@@ -193,31 +204,31 @@
               <p class="muted" id="plMeta">—</p>
             </div>
             <div class="pl-actions">
-              <button class="btn btn-ghost btn-sm" id="regenBtn" title="Vuelve a calcular la playlist usando tus 👍 y 👎">
-                🧠 <span>Aprender y regenerar</span>
+              <button class="btn btn-ghost btn-sm" id="regenBtn" title="Vuelve a calcular la playlist usando tus votos de me gusta y no me gusta">
+                <i data-icon="brain"></i> <span>Aprender y regenerar</span>
               </button>
               <div class="menu-wrap">
-                <button class="btn btn-ghost btn-sm" id="exportBtn" aria-haspopup="true" aria-expanded="false">⤴ Enviar a SoundCloud</button>
+                <button class="btn btn-ghost btn-sm" id="exportBtn" aria-haspopup="true" aria-expanded="false"><i data-icon="share-2"></i> Exportar</button>
                 <div class="menu" id="exportMenu" role="menu" hidden>
-                  <button role="menuitem" id="saveScBtn">☁️ Guardar como playlist en mi SoundCloud</button>
-                  <button role="menuitem" id="copyBtn">📋 Copiar enlaces de SoundCloud</button>
-                  <button role="menuitem" id="downloadBtn">💾 Descargar playlist (.txt)</button>
-                  <button role="menuitem" id="openAllBtn">🔗 Abrir la primera en SoundCloud</button>
+                  <button role="menuitem" id="ytListBtn"><i data-icon="youtube"></i> Abrir como lista en YouTube</button>
+                  <button role="menuitem" id="saveScBtn"><i data-icon="cloud-upload"></i> Guardar como playlist en mi SoundCloud</button>
+                  <button role="menuitem" id="copyBtn"><i data-icon="clipboard"></i> Copiar enlaces</button>
+                  <button role="menuitem" id="downloadBtn"><i data-icon="download"></i> Descargar playlist (.txt)</button>
                 </div>
               </div>
-              <button class="btn btn-ghost btn-sm" data-go="home">↺ Nuevo test</button>
+              <button class="btn btn-ghost btn-sm" data-go="home"><i data-icon="rotate-ccw"></i> Nuevo test</button>
             </div>
           </div>
-          <p class="learn-hint" id="learnHint">Marca 👍 o 👎 en las canciones y pulsa <b>Aprender y regenerar</b>.</p>
+          <p class="learn-hint" id="learnHint">Marca <i data-icon="thumbs-up"></i> o <i data-icon="thumbs-down"></i> en las canciones y pulsa <b>Aprender y regenerar</b>.</p>
           <ol class="tracks" id="tracks"></ol>
 
-          <div class="discover" id="discoverBox" hidden>
+          <div class="discover" id="discoverBox">
             <div class="pl-head">
               <div>
-                <h3 class="panel-title">Descubrimientos en vivo de SoundCloud</h3>
-                <p class="muted">Búsqueda en el API de SoundCloud a partir de tu género favorito</p>
+                <h3 class="panel-title">Descubre artistas independientes</h3>
+                <p class="muted">Canciones completas de <a href="https://audius.co" target="_blank" rel="noopener">Audius</a>, donde los propios artistas suben su música · según tu género favorito</p>
               </div>
-              <button class="btn btn-ghost btn-sm" id="discoverBtn">🔭 Buscar más</button>
+              <button class="btn btn-ghost btn-sm" id="discoverBtn"><i data-icon="telescope"></i> Buscar</button>
             </div>
             <ol class="tracks" id="discoverList"></ol>
           </div>
@@ -225,7 +236,7 @@
       </div>
 
       <details class="sc-dock" id="scDock">
-        <summary>Reproductor oficial de SoundCloud</summary>
+        <summary>Reproductor de SoundCloud (respaldo)</summary>
         <iframe id="scFrame" title="Reproductor de SoundCloud" allow="autoplay; encrypted-media" scrolling="no" frameborder="no"></iframe>
       </details>
     </section>
@@ -233,7 +244,7 @@
 
   <footer class="footer">
     <p>Proyecto en equipo · <b>Mario Gaytán</b> · <b>Rosario Rosas</b> · <b>Jorge Robles</b></p>
-    <p class="muted">Música vía SoundCloud. Los derechos de cada pista son de sus autores.</p>
+    <p class="muted">Música reproducida con los reproductores oficiales de YouTube, SoundCloud y Audius; los derechos de cada canción son de sus autores. La música de fondo la genera la app. Íconos: Lucide (ISC).</p>
   </footer>
 
   <!-- Barra de reproducción -->
@@ -266,12 +277,15 @@
     </div>
   </div>
 
+  <audio id="audioEl" hidden></audio>
   <div class="toasts" id="toasts" aria-live="polite"></div>
 
+  <script src="js/icons.js"></script>
   <script src="js/config.js"></script>
   <script src="js/catalog.js"></script>
   <script src="js/questions.js"></script>
   <script src="js/engine.js"></script>
+  <script src="js/bgmusic.js"></script>
   <script src="js/player.js"></script>
   <script src="js/visualizer.js"></script>
   <script src="js/api.js"></script>

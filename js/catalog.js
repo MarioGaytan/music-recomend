@@ -245,6 +245,29 @@
       'stromae/alors-on-danse'),
   ];
 
+  // Video de YouTube de cada canción (canal oficial del artista, disquera,
+  // VEVO o "- Topic"). Todos se revisaron con el oEmbed de YouTube para
+  // confirmar que permiten insertarse en otras páginas.
+  const YT = {
+    levitating: 'TUVcZfQe-Kw', billiejean: 'Zi_XLOBDo_Y', hipsdontlie: 'DUT5rEU6pqM', shapeofyou: 'JGwWNGJdvx8',
+    dancingqueen: 'xFrGuyw1V8s', flowers: 'G7KNmW9a75Y', bzrp53: 'CocEMWdc7Ck', bohemian: 'fJ9rUzIMcZQ',
+    teenspirit: 'hTWKbfoikeg', musicaligera: 'T_FkEw27XJ0', doiwannaknow: 'bpOSxM0rNPM', celula: 'NxFEyQ8D1GM',
+    labiosrotos: '7h2ryr_uUEs', believer: '7wtfhZwyrcc', titi: 'Cr8K88UcO0s', gasolina: 'CCF1_jI8Prk',
+    tusa: 'tbneQDc2H3I', tododeti: 'CFPLIaMpGrY', californialove: 'J7_bMdYfSws', loseyourself: 'xFYQQPAOz7Y',
+    feelgood: 'HyHNuVaZJ-k', selfcare: 'SsKT0s5J8ko', esepico: 'sq6oc066w14', levels: '_ovdm2yX4MA',
+    momentapart: 'xarC5jAiO7w', kerala: 'S0Q4gqBUs7c', firestone: '9Sc-ir2UwGU', aruarian: 'qYcoJpqCha4',
+    volver: 'NPg_jbGYzgA', ellabaila: 'OAdErROwTEE', unx100to: '3inw26U-os4', adiosamor: 'ETLoTxVVvjM',
+    nuncaessuficiente: 'rJAZtuQqerE', querida: 'AQOJ4qF0alk', blindinglights: '4NRXx6U8ABQ', thinkin: '6JHu3b-pbh8',
+    letsgetiton: 'AqPBfbLoF_M', backtoblack: 'TJAfLE39ZZ8', getyou: 'uQFVqltOXRg', killbill: 'MSRcC626prw',
+    hastalaraiz: 'IKmPci5VXz0', skinnylove: '95FyXUHv8hk', lessiknow: 'sBzrzS1Ag_g', loquesiento: 'AjGkbFqi67c',
+    takemetochurch: 'PVjiKRfKpPI', tufalta: 'WT-VE9OyAJk', sowhat: 'ylXk1LBvIqU', takefive: '-DHuW1h1wHw',
+    atlast: 'cZag0E32is0', thrillisgone: 'kpC69qIe02E', dontknowwhy: 'tO4dxvguQDk', wonderfulworld: 'rBrd_3VMC3c',
+    clairdelune: '-Bxpm0EmOMU', moonlight: '21EU31SqQEg', primavera: 'bQujhuIst5E', nuvole: 'sR2W2scFS4Y',
+    time: 'WxNbZLh0PaA', onesummer: 'TK1Ij_-mank', threebirds: 'HNBCVM4KbUM', chanchan: 'fE4Sf7vXgbo',
+    carnaval: '7Ho86ggAVrY', dynamite: 'gdZLi9oWNZg', alorsondanse: 'VHoT4N43jK8',
+  };
+  CATALOG.forEach(s => { s.yt = YT[s.id] || null; });
+
   // Géneros con color (también se usan para pintar el visualizador).
   const GENRES = {
     pop:         { name: 'Pop',                 color: '#ff5fa2' },
